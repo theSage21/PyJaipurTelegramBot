@@ -1,0 +1,11 @@
+[Unit]
+Description=PyJaipur Telegram bot service
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/PyJaipurTelegramBot
+ExecStart=/home/ubuntu/.local/bin/pipenv run python bot.py { token }
+
+[Install]
+WantedBy=multi-user.target
