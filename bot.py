@@ -8,14 +8,12 @@ parser.add_argument('token', help='Bot token')
 args = parser.parse_args()
 
 updater = Updater(args.token)
+unnatural_chars = ['=', '==', '(', ')', '[', ']', ':', ';', '<', '>', '{', '}']
 # ===============================
 def is_code(text):
-    lines = [i for i in text.split('\n') if i.strip() != '']
-    if len(lines) > 1:
-        unnatural_chars = ['=', '==', '(', ')', '[', ']', ':', ';']
-        if any(char in text for char in unnatural_chars):
-            return True
-    return False
+    lines = (i for i in text.split('\n') if i.strip() != '')
+    code_lines = [line for line in lines if any([char in line for char in unnatural_chars])]
+    return len(code_lines) > 1
 
 
 def paste(message):
