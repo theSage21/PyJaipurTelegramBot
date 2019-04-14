@@ -1,3 +1,4 @@
+import shelve
 import argparse
 import requests
 from telegram.ext import Updater, MessageHandler, Filters
@@ -25,16 +26,23 @@ def echo(bot, update):
     if is_code(update.message.text):
         print('looks like code')
         link = paste(update.message.text)
-        msg = f'''Looks like you just pasted some code in the chat. This makes the chat unreadable. I've pasted your message for you this time:
+        with shelve.open(shelf) as shelf:
+            first_mistake = shelf.get(update.message.from_user.id) is None
+            if first_mistake:
+                shelf[update.message.from_user.id] = True
+        if not first_mistake:
+            msg = f'Please use a paste service: { link }'
+        else:
+            msg = f'''Looks like you just pasted some code in the chat. This makes the chat unreadable. I've pasted your message for you this time:
 
-        { link }
+            { link }
 
-        In the future use one of these services:
+            In the future use one of these services:
 
-        - dpaste.de
-        - pastebin.com
-        - gist.github.com
-        '''
+            - dpaste.de
+            - pastebin.com
+            - gist.github.com
+            '''
         update.message.reply_text(msg)
 
 
