@@ -6,6 +6,7 @@ from telegram.ext import Updater, MessageHandler, Filters
 
 parser = argparse.ArgumentParser()
 parser.add_argument('token', help='Bot token')
+parser.add_argument('--shelf', default='shelf', help='Where to store shelf data')
 args = parser.parse_args()
 
 updater = Updater(args.token)
@@ -26,7 +27,7 @@ def echo(bot, update):
     if is_code(update.message.text):
         print('looks like code')
         link = paste(update.message.text)
-        with shelve.open(shelf) as shelf:
+        with shelve.open(args.shelf) as shelf:
             first_mistake = shelf.get(update.message.from_user.id) is None
             if first_mistake:
                 shelf[update.message.from_user.id] = True
