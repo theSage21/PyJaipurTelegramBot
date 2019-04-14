@@ -1,6 +1,7 @@
 import shelve
 import argparse
 import requests
+import logging
 from telegram.ext import Updater, MessageHandler, Filters
 
 
@@ -10,7 +11,7 @@ parser.add_argument('--shelf', default='shelf', help='Where to store shelf data'
 args = parser.parse_args()
 
 updater = Updater(args.token)
-unnatural_chars = ['=', '==', '(', ')', '[', ']', ':', ';', '<', '>', '{', '}']
+unnatural_chars = ['=', '==', '(', ')', '[', ']', ';', '<', '>', '{', '}']
 # ===============================
 def is_code(text):
     lines = (i for i in text.split('\n') if i.strip() != '')
@@ -25,14 +26,14 @@ def paste(message):
 
 def echo(bot, update):
     if is_code(update.message.text):
-        print('looks like code')
         link = paste(update.message.text)
-        with shelve.open(args.shelf) as shelf:
-            first_mistake = shelf.get(update.message.from_user.id) is None
-            if first_mistake:
-                shelf[update.message.from_user.id] = True
-        if not first_mistake:
-            msg = f'Please use a paste service: { link }'
+        with shelve.open(args.shelf) as known_offenders:
+            uid = str(update.message.from_user.id )
+            serial_offender = uid in known_offenders
+            if not serial_offender:
+                known_offenders[uid] = True
+        if serial_offender:
+            msg = f"Please use a paste service: { link }"
         else:
             msg = f'''Looks like you just pasted some code in the chat. This makes the chat unreadable. I've pasted your message for you this time:
 
@@ -45,6 +46,7 @@ def echo(bot, update):
             - gist.github.com
             '''
         update.message.reply_text(msg)
+
 
 
 updater.dispatcher.add_handler(MessageHandler(Filters.text, echo))
