@@ -8,6 +8,7 @@ from telegram.ext import Updater, MessageHandler, Filters
 parser = argparse.ArgumentParser()
 parser.add_argument('token', help='Bot token')
 parser.add_argument('--shelf', default='shelf', help='Where to store shelf data')
+parser.add_argument('-n_code_lines_ok', default=8, help='How many lines of code like stuff is acceptable?')
 args = parser.parse_args()
 
 updater = Updater(args.token)
@@ -16,7 +17,7 @@ unnatural_chars = ['=', '==', '(', ')', '[', ']', ';', '<', '>', '{', '}']
 def is_code(text):
     lines = (i for i in text.split('\n') if i.strip() != '')
     code_lines = [line for line in lines if any([char in line for char in unnatural_chars])]
-    return len(code_lines) > 1
+    return len(code_lines) > args.n_code_lines_ok
 
 
 def paste(message):
