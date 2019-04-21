@@ -31,12 +31,12 @@ def echo(bot, update):
         with shelve.open(args.shelf) as known_offenders:
             uid = str(update.message.from_user.id )
             offences = known_offenders.get(uid, {'offence_count': 0, 'last_warning_at_count': 0})
-            offences['offence_count'] += 1
-            if (offences['offence_count'] - offences['last_warning_at_count']) % args.ignore_n_offences != 0:
+            if (offences['offence_count'] - offences['last_warning_at_count']) % args.ignore_n_offences == 0:
                 link = paste(update.message.text)
                 msg = f"Please use a paste service: { link }"
                 offences['last_warning_at_count'] = offences['offence_count']
-            known_offenders[uid] = offences
+            offences['offence_count'] += 1
+            known_offenders[uid] = offences  # save in database
         update.message.reply_text(msg)
 
 
