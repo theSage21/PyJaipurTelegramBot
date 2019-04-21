@@ -8,7 +8,7 @@ from telegram.ext import Updater, MessageHandler, Filters
 parser = argparse.ArgumentParser()
 parser.add_argument('token', help='Bot token')
 parser.add_argument('--shelf', default='shelf', help='Where to store shelf data')
-parser.add_argument('-n_code_lines_ok', default=10, help='How many lines of code like stuff is acceptable?')
+parser.add_argument('-n_code_lines_ok', default=8, help='How many lines of code like stuff is acceptable?')
 parser.add_argument('-ignore_n_offences', default=3, help='How many offences to ignore before reminding a person?')
 args = parser.parse_args()
 
