@@ -8,7 +8,8 @@ from telegram.ext import Updater, MessageHandler, Filters
 parser = argparse.ArgumentParser()
 parser.add_argument('token', help='Bot token')
 parser.add_argument('--shelf', default='shelf', help='Where to store shelf data')
-parser.add_argument('-n_code_lines_ok', default=8, help='How many lines of code like stuff is acceptable?')
+parser.add_argument('-n_code_lines_ok', default=10, help='How many lines of code like stuff is acceptable?')
+parser.add_argument('-ignore_n_offences', default=3, help='How many offences to ignore before reminding a person?')
 args = parser.parse_args()
 
 updater = Updater(args.token)
@@ -27,25 +28,14 @@ def paste(message):
 
 def echo(bot, update):
     if is_code(update.message.text):
-        link = paste(update.message.text)
         with shelve.open(args.shelf) as known_offenders:
             uid = str(update.message.from_user.id )
-            serial_offender = uid in known_offenders
-            if not serial_offender:
-                known_offenders[uid] = True
-        if serial_offender:
+            offences = known_offenders.get(uid, {'offence_count': 0, 'last_warning_at_count': 0})
+            offences['offence_count'] += 1
+            known_offenders[uid] = offences
+        if (offences['offence_count'] - offences['last_warning_at_count']) % args.ignore_n_offences != 0:
+            link = paste(update.message.text)
             msg = f"Please use a paste service: { link }"
-        else:
-            msg = f'''Looks like you just pasted some code in the chat. This makes the chat unreadable. I've pasted your message for you this time:
-
-            { link }
-
-            In the future use one of these services:
-
-            - dpaste.de
-            - pastebin.com
-            - gist.github.com
-            '''
         update.message.reply_text(msg)
 
 
