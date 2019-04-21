@@ -35,7 +35,7 @@ def echo(bot, update):
             if (offences['offence_count'] - offences['last_warning_at_count']) % args.ignore_n_offences != 0:
                 link = paste(update.message.text)
                 msg = f"Please use a paste service: { link }"
-                offences['last_warning_at_count'] offences['offence_count']
+                offences['last_warning_at_count'] = offences['offence_count']
             known_offenders[uid] = offences
         update.message.reply_text(msg)
 
